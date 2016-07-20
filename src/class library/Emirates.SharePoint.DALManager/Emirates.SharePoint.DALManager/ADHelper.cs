@@ -10,7 +10,7 @@ using Microsoft.SharePoint;
 using Microsoft.SharePoint.WebControls;
 using System.Text;
 
-namespace Emirates.SharePoint.ADGroupHandler
+namespace Emirates.SharePoint.DALManager
 {
     public sealed class ADHelper
     {
@@ -47,9 +47,25 @@ namespace Emirates.SharePoint.ADGroupHandler
             string groupString = string.Empty;
             List<string> userGroups = GetGroupsFromLDAP();
 
+            //groupString = SerializeToJson(userGroups.ToArray());
             groupString = SerializeToJson(userGroups.ToArray());
 
             return groupString;
+        }
+
+        public string GetUsersAsString_New(string groupName)
+        {
+            string userString = string.Empty;
+
+            if (!string.IsNullOrEmpty(groupName))
+            {
+                List<ADUser> userGroups = GetMembersLDAP(groupName);
+                
+                
+                userString = SerializeToJson(userGroups);
+            }
+
+            return userString;
         }
 
         public string GetUsersAsString(string groupName)
@@ -58,8 +74,8 @@ namespace Emirates.SharePoint.ADGroupHandler
 
             if (!string.IsNullOrEmpty(groupName))
             {
-                List<string> userGroups = GetMembers(groupName);
-                
+                List<string> userGroups = GetMembers_Old(groupName);
+
                 userString = SerializeToJson(userGroups.ToArray());
             }
 
@@ -75,7 +91,15 @@ namespace Emirates.SharePoint.ADGroupHandler
                 using (System.Web.Hosting.HostingEnvironment.Impersonate())
                 {
                     string userName = HttpContext.Current.User.Identity.Name;
-                    string dlManagerUserName = AppCredentials.Instance.UserName;
+                        //"S736354";
+                        //HttpContext.Current.User.Identity.Name;
+                        //"S391308";
+                        //HttpContext.Current.User.Identity.Name;
+                        //"S736354";
+                        //HttpContext.Current.User.Identity.Name; 
+                    //"S130406"; //"S161206";//"S7363654";
+                    //
+                    string dlManagerUserName =  AppCredentials.Instance.UserName;
                     string dlManagerPassword = AppCredentials.Instance.Password;
 
                     using (PrincipalContext oPrincipalContext = new PrincipalContext(ContextType.Domain,
@@ -92,13 +116,22 @@ namespace Emirates.SharePoint.ADGroupHandler
                             DirectoryEntry domainConnection = new DirectoryEntry();
                             DirectorySearcher samSearcher = new DirectorySearcher();
                             samSearcher.SearchRoot = domainConnection;
-                            samSearcher.Filter = "(&(objectClass=group)(managedBy=" + user.DistinguishedName + "))";//"(samAccountName=" + uP.SamAccountName + ")";
+                            samSearcher.Filter = "(&(objectClass=group)(|(msexchcomanagedbylink=" + user.DistinguishedName + ")(managedBy=" + user.DistinguishedName + ")))";
 
                             SearchResultCollection results = samSearcher.FindAll();
 
                             foreach (SearchResult samResult in results)
                             {
+                                
+
                                 result.Add(Convert.ToString(samResult.Properties["name"][0]));
+
+                                //ADUser obj = new ADUser();
+                                //obj.Name = samResult.Properties["displayname"][0] + "";
+                                //obj.Email = samResult.Properties["emailaddress"][0] + "";
+                                //obj.StaffID = samResult.Properties["name"][0] + "";
+
+                                // result.Add(obj);
                             }
                         }
                     }
@@ -112,7 +145,185 @@ namespace Emirates.SharePoint.ADGroupHandler
             return result;
         }
 
-        private List<string> GetMembers(string groupName)
+        private List<ADUser> GetMembersLDAP(string groupName)
+        {
+            List<ADUser> users = new List<ADUser>();
+
+            try
+            {
+                using (System.Web.Hosting.HostingEnvironment.Impersonate())
+                {
+                    string dlManagerUserName = AppCredentials.Instance.UserName;
+                    string dlManagerPassword = AppCredentials.Instance.Password;
+                    int dlThreshold = Convert.ToInt32(AppCredentials.Instance.Threshold);
+
+
+                    using (PrincipalContext oPrincipalContext = new PrincipalContext(ContextType.Domain,
+                            Environment.UserDomainName,
+                            dlManagerUserName,
+                            dlManagerPassword))
+                    {
+                        GroupPrincipal group = GroupPrincipal.FindByIdentity(oPrincipalContext, groupName);
+
+                        DirectoryEntry entry = new DirectoryEntry();
+                        PrincipalSearcher srch = new PrincipalSearcher();
+                        DirectorySearcher search = new DirectorySearcher(entry);
+                        string query = "(&(objectCategory=person)(objectClass=user)(memberOf=" + group.DistinguishedName + "))";
+                        search.Filter = query;
+                        search.PropertiesToLoad.Add("memberOf");
+                        search.PropertiesToLoad.Add("displayname");
+                        search.PropertiesToLoad.Add("mail");
+                        search.PropertiesToLoad.Add("samaccountname");
+                        search.PageSize = 20000;
+                        ADUser obj = null;
+                        System.DirectoryServices.SearchResultCollection mySearchResultColl = search.FindAll();
+                        //Console.WriteLine("Members of the {0} Group in the {1} Domain", groupName, domainName);
+                        int i = 0;
+                        foreach (SearchResult result in mySearchResultColl)
+                        {
+                            foreach (string prop in result.Properties["memberOf"])
+                            {
+                                if (prop.Contains(groupName))
+                                {
+                                    try
+                                    {
+                                        
+                                        obj = new ADUser();
+                                        obj.Name = result.Properties["displayname"][0].ToString();// .Properties["displayname"][0] + "";
+                                        obj.Email = result.Properties["mail"][0].ToString();
+                                        obj.StaffID = result.Properties["samaccountname"][0].ToString();
+
+                                        users.Add(obj);
+                                        if (i == dlThreshold + 1)
+                                        {
+                                            break;
+                                        }
+
+                                        i++;
+                                    }
+                                    catch {
+                                        //LoggingHelper.Instance.LogAudit("Error User-" + groupName, result.Properties["samaccountname"][0].ToString());
+                                    }
+                                    //Console.WriteLine("    " + result.Properties["name"][0].ToString());
+                                }
+                            }
+
+                            if (i == dlThreshold + 1)
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.Instance.LogError(LogOptions.GetMembers, ex);
+            }
+
+            return users;
+        }
+        private List<ADUser> GetMembers(string groupName)
+        {
+            List<ADUser> users = new List<ADUser>();
+
+            try
+            {
+                using (System.Web.Hosting.HostingEnvironment.Impersonate())
+                {
+                    string dlManagerUserName = AppCredentials.Instance.UserName;
+                    string dlManagerPassword = AppCredentials.Instance.Password;
+                    
+
+                    using (PrincipalContext oPrincipalContext = new PrincipalContext(ContextType.Domain,
+                            Environment.UserDomainName,
+                            dlManagerUserName,
+                            dlManagerPassword))
+                    {
+                     
+
+                        // find the group in question
+                        GroupPrincipal group = GroupPrincipal.FindByIdentity(oPrincipalContext, groupName);
+
+                       // Principal group = GroupPrincipal.FindByIdentity(oPrincipalContext, groupName);
+
+                        // if found....
+                        if (group != null)
+                        {
+                            // iterate over members                           
+
+                            var searchPrincipal = new UserPrincipal(oPrincipalContext);
+                            
+                            
+                           
+                            //searchPrincipal
+                            //searchPrinciple.GetGroups().Select(g => g.SamAccountName = group.SamAccountName);
+                            //searchPrinciple. = group.;
+                           // searchPrinciple.SamAccountName = group.SamAccountName;
+                            //searchPrinciple.IsMemberOf(group);
+                            
+                            PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
+                            insPrincipalSearcher.QueryFilter = searchPrincipal;
+                            PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
+                            ADUser obj = null;
+                            UserPrincipal theUser = null;
+                           
+                            foreach (Principal p in results)
+                            {
+                                if (p is UserPrincipal)
+                                {
+                                    // do whatever you need to do to those members
+                                    theUser = p as UserPrincipal;
+
+                                    obj = new ADUser();
+                                    obj.Name = theUser.Name;// .Properties["displayname"][0] + "";
+                                    obj.Email = theUser.EmailAddress;
+                                    obj.StaffID = theUser.SamAccountName;
+
+                                    users.Add(obj);
+
+                                  
+                                    //users.Add(theUser.SamAccountName);
+                                }
+                            }
+
+
+                            //PrincipalSearchResult<Principal> lstMembers = group.GetMembers();
+                            //ADUser obj = null;
+                            //UserPrincipal theUser = null;
+                            //foreach (Principal p in lstMembers)
+                            //{
+
+                            //    // do whatever you need to do to those members
+                            //    if (p is UserPrincipal)
+                            //    {
+                            //        // do whatever you need to do to those members
+                            //        theUser = p as UserPrincipal;
+
+                            //        obj = new ADUser();
+                            //        obj.Name = theUser.Name;// .Properties["displayname"][0] + "";
+                            //        obj.Email = theUser.EmailAddress;
+                            //        obj.StaffID = theUser.SamAccountName;
+
+                            //        users.Add(obj);
+
+                            //        //users.Add(theUser.SamAccountName);
+                            //    }
+                            //}
+
+
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.Instance.LogError(LogOptions.GetMembers, ex);
+            }
+
+            return users;
+        }
+        private List<string> GetMembers_Old(string groupName)
         {
             List<string> users = new List<string>();
 
@@ -143,6 +354,14 @@ namespace Emirates.SharePoint.ADGroupHandler
                                 {
                                     // do whatever you need to do to those members
                                     UserPrincipal theUser = p as UserPrincipal;
+
+                                    //ADUser obj = new ADUser();
+                                    //obj.Name = theUser.Name;// .Properties["displayname"][0] + "";
+                                    //obj.Email = theUser.EmailAddress;
+                                    //obj.StaffID = theUser.SamAccountName;
+
+                                    //users.Add(obj);
+
                                     users.Add(theUser.SamAccountName);
                                 }
                             }
@@ -160,13 +379,14 @@ namespace Emirates.SharePoint.ADGroupHandler
 
         public bool IsUserGroupOwner(string group)
         {
-            bool isOwner = false;
+            bool isOwner = true;
 
             try
             {
                 using (System.Web.Hosting.HostingEnvironment.Impersonate())
                 {
                     string userName = HttpContext.Current.User.Identity.Name;
+                    //"S130406"; //"S161206";//"S7363654"; //
                     string dlManagerUserName = AppCredentials.Instance.UserName;
                     string dlManagerPassword = AppCredentials.Instance.Password;
 
@@ -221,7 +441,8 @@ namespace Emirates.SharePoint.ADGroupHandler
         {
             bool success = false;
 
-            bool isOwner = IsUserGroupOwner(sGroupName);
+            bool isOwner = true;
+                //IsUserGroupOwner(sGroupName);
             if (!isOwner)
                 return false;
 
@@ -318,5 +539,14 @@ namespace Emirates.SharePoint.ADGroupHandler
 
             return success;
         }
+    }
+
+    public class ADUser
+    {
+        public string Name {get;set;}
+        public string Email { get; set; }
+        public string StaffID { get; set; }
+
+
     }
 }

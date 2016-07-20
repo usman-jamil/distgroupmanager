@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Emirates.SharePoint.ADGroupHandler")]
+[assembly: AssemblyTitle("Emirates.SharePoint.DALManager")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Emirates.SharePoint.ADGroupHandler")]
+[assembly: AssemblyProduct("Emirates.SharePoint.DALManager")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("a1eec242-27bd-4809-9dcd-71a124deb839")]
+[assembly: Guid("6d947f2d-a229-4ecd-9144-ff10fde427e5")]
 
 // Version information for an assembly consists of the following four values:
 //

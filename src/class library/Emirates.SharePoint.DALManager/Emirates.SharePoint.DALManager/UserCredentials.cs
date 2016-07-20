@@ -5,9 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Security;
-using Microsoft.Office.SecureStoreService.Server;
 
-namespace Emirates.SharePoint.ADGroupHandler
+namespace Emirates.SharePoint.DALManager
 {
     public class UserCredentials : IDisposable
     {

@@ -7,16 +7,13 @@ using System.Web;
 using System.Web.Script.Serialization;
 using System.Web.Hosting;
 using System.Security.Principal;
-using Microsoft.IdentityModel;
 using System.Threading;
-using Microsoft.IdentityModel.WindowsTokenService;
-using Microsoft.IdentityModel.Claims;
 using Microsoft.SharePoint;
 using Microsoft.SharePoint.WebControls;
 
-namespace Emirates.SharePoint.ADGroupHandler
+namespace Emirates.SharePoint.DALManager
 {
-    public class Emirates_SharePoint_ADGroupHandler : IHttpHandler
+    public class Emirates_SharePoint_DALManager : IHttpHandler
     {
         public void ProcessRequest(HttpContext context)
         {
@@ -35,13 +32,18 @@ namespace Emirates.SharePoint.ADGroupHandler
                     string users = ADHelper.Instance.GetUsersAsString(groupName);
                     context.Response.Write(users);
                     break;
+                case "usersNew":
+                    string groupName1 = string.IsNullOrEmpty(context.Request["group"]) ? "" : context.Request["group"];
+                    string users1 = ADHelper.Instance.GetUsersAsString_New(groupName1);
+                    context.Response.Write(users1);
+                    break;
                 case "addusers":
                     string usersToAdd = string.IsNullOrEmpty(context.Request["users"]) ? "" : context.Request["users"];
                     string additionToGroup = string.IsNullOrEmpty(context.Request["group"]) ? "" : context.Request["group"];
                     string[] addUsersArray = javaScriptSerializer.Deserialize<string[]>(usersToAdd);
 
                     bool addSuccess = ADHelper.Instance.AddUsers(additionToGroup, addUsersArray);
-                    if(addSuccess)
+                    if (addSuccess)
                     {
                         LoggingHelper.Instance.LogAudit("User(s) Added", string.Format("User(s) Added: {0} to Group: {1}", string.Join(", ", addUsersArray), additionToGroup));
                     }
@@ -63,7 +65,7 @@ namespace Emirates.SharePoint.ADGroupHandler
                     context.Response.Write(string.Format("Hello from Emirates_SharePoint_ADGroupHandler.ashx"));
                     break;
             }
-            
+
 
             context.Response.Flush();
             context.Response.End();

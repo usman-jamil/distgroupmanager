@@ -821,6 +821,161 @@ fLeft{
 	width: 300px !important;
 }
 
+
+/*Gaurav*/
+.tableDiv
+{ width:100%;
+    
+   
+}
+
+.userGrid{
+width:100%;
+
+}
+
+.userGrid tr th,.userGrid tr td{text-align:left;}
+.userGrid tr td:nth-child(2),.userGrid tr td:nth-child(4){
+    text-transform:capitalize;
+}
+
+.buttonsDiv {
+    width: 100%;
+       height: 30px;
+
+}
+#ddlGroups{
+    width:270px;
+        height: 24px;
+}
+#txtSearch{
+     height: 24px;
+     float:right;
+     width: 160px;
+}
+.buttonsDiv table td:nth-child(1){
+   padding-left:5px;
+    width:320px;
+}
+.buttonsDiv table td:nth-child(2){
+   
+        width:100px;
+}
+.buttonsDiv table td:nth-child(3){
+   width:100px;
+}
+.buttonsDiv table td:nth-child(4){
+    
+     text-align:right;
+}
+.buttonsDiv table td div{
+    
+    padding-top:5px;
+    
+}
+.buttonsDiv table td .floatLeft{
+    
+    float:left;
+    
+}
+.buttonsDiv table td .floatRight{
+    
+    float:right;
+    
+}
+
+.overlayButtons{
+      position: absolute;
+    width: 100%;
+    height: 30px;
+    
+    z-index: 1;
+  
+    background: transparent;
+    margin-top: -30px;
+}
+.section{
+    padding-bottom:2px;
+}
+.dataTables_length,.dataTables_filter { display: none; }
+.dataTables_info{margin-top:-45px;}
+table.dataTable thead th, table.dataTable thead td {
+    padding: 10px 10px !important;
+}
+.groupNameHeader {
+    font-weight:bold;
+    font-size:18px;
+    padding-left:5px;
+}
+input[type=button], input[type=reset], input[type=submit], button
+{
+	padding:5px 5px;
+}
+
+.lastTextDiv
+{
+    padding-bottom:80px;
+}
+.mainMessage
+{
+        font-family: 'segoe ui' , ' lucida grande' , verdana, arial, helvetica, sans-serif;
+        line-height: 17.55px;
+         font-size: 15px;
+}
+.noteMessage{
+    margin-bottom: 0px; padding-bottom: 5px; line-height: 18px; font-size: 15px;
+}
+
+div.copyRight p {
+    margin-left:135px !important;
+}
+
+/*footer*/
+.wrapper
+{
+    width: 990px;
+ 
+    position: relative;
+    z-index:1;
+ 
+}
+div.copyRight
+{
+    float: left;
+    color: #666666;
+
+}
+div.copyRight p
+{
+    color: #666666;
+    font-size: 10px;
+    margin-top: -40px;
+	margin-left:160px;
+    line-height: 1.2em;
+    font-weight:bold;
+}
+#footer
+{
+    background:#F2F2F2;
+    border: 1px solid #ded7d7;
+    margin-left:-120px;
+    color: #666666;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    /*z-index: 5;*/
+    height:70px;
+       padding-left:120px
+}
+
+table.dataTable tbody th, table.dataTable tbody td {
+	padding:5px 10px !important;
+}
+
 #contentRow {
 	padding-top: 0px !important;
+}
+
+#pageStatusBar[class], .ms-status-msg {
+	margin-bottom: 0px !important;
 }

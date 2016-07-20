@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net;
 
-namespace Emirates.SharePoint.ADGroupHandler
+namespace Emirates.SharePoint.DALManager
 {
     class ListsClient : IDisposable
     {

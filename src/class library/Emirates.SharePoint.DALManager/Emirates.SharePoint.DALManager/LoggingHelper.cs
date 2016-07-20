@@ -9,7 +9,7 @@ using System.Web.Script.Serialization;
 using System.Security.Principal;
 using Microsoft.SharePoint;
 
-namespace Emirates.SharePoint.ADGroupHandler
+namespace Emirates.SharePoint.DALManager
 {
     public enum LogOptions
     {
