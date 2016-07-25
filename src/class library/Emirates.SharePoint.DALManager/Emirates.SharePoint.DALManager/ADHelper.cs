@@ -254,14 +254,6 @@ namespace Emirates.SharePoint.DALManager
 
                             var searchPrincipal = new UserPrincipal(oPrincipalContext);
                             
-                            
-                           
-                            //searchPrincipal
-                            //searchPrinciple.GetGroups().Select(g => g.SamAccountName = group.SamAccountName);
-                            //searchPrinciple. = group.;
-                           // searchPrinciple.SamAccountName = group.SamAccountName;
-                            //searchPrinciple.IsMemberOf(group);
-                            
                             PrincipalSearcher insPrincipalSearcher = new PrincipalSearcher();
                             insPrincipalSearcher.QueryFilter = searchPrincipal;
                             PrincipalSearchResult<Principal> results = insPrincipalSearcher.FindAll();
@@ -386,7 +378,6 @@ namespace Emirates.SharePoint.DALManager
                 using (System.Web.Hosting.HostingEnvironment.Impersonate())
                 {
                     string userName = HttpContext.Current.User.Identity.Name;
-                    //"S130406"; //"S161206";//"S7363654"; //
                     string dlManagerUserName = AppCredentials.Instance.UserName;
                     string dlManagerPassword = AppCredentials.Instance.Password;
 
@@ -401,6 +392,16 @@ namespace Emirates.SharePoint.DALManager
                         {
                             DirectoryEntry dE = (DirectoryEntry)oGroupPrincipal.GetUnderlyingObject();
                             isOwner = dE.Properties["managedBy"].Value != null && ((string)dE.Properties["managedBy"].Value).Equals(oUserPrincipal.DistinguishedName);
+                            if (dE.Properties["msexchcomanagedbylink"].Value != null)
+                            {
+                                object[] msExchangeValues = dE.Properties["msexchcomanagedbylink"].Value as object[];
+                                foreach (object msExchangeValue in msExchangeValues)
+                                {
+                                    string value = (string)msExchangeValue;
+                                    Console.WriteLine("MSExchange Managed By: " + value);
+                                    isOwner = isOwner || value.Equals(oUserPrincipal.DistinguishedName);
+                                }
+                            }
                         }
                     }
                 }
@@ -441,10 +442,9 @@ namespace Emirates.SharePoint.DALManager
         {
             bool success = false;
 
-            bool isOwner = true;
-                //IsUserGroupOwner(sGroupName);
-            if (!isOwner)
-                return false;
+            //bool isOwner = IsUserGroupOwner(sGroupName);
+            //if (!isOwner)
+                //return false;
 
             try
             {
@@ -493,9 +493,9 @@ namespace Emirates.SharePoint.DALManager
         {
             bool success = false;
 
-            bool isOwner = IsUserGroupOwner(sGroupName);
-            if (!isOwner)
-                return false;
+            //bool isOwner = IsUserGroupOwner(sGroupName);
+            //if (!isOwner)
+                //return false;
 
             try
             {
@@ -546,7 +546,5 @@ namespace Emirates.SharePoint.DALManager
         public string Name {get;set;}
         public string Email { get; set; }
         public string StaffID { get; set; }
-
-
     }
 }

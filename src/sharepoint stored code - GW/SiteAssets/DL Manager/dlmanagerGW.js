@@ -59,6 +59,7 @@ function getGroupsForUser()
         url: address,
         method: "GET",
         async: true,
+		cache: false,
         headers: {
             "accept": "application/json;odata=verbose",
         }
@@ -110,6 +111,7 @@ function getUserForGroup(obj)
     var call = jQuery.ajax({
         url: address,
         method: "POST",
+		cache: false,
         async: true,
         data: obj,
         headers: {
@@ -122,7 +124,7 @@ function getUserForGroup(obj)
         clearAndCreateTable();
         buildHtmlTable('#userDataTable', allUsers);
 
-        $('#groupName_UserCount').text('(' + (allUsers.length > 2000 ? 2000 : allUsers.length) + ')');
+        $('#groupName_UserCount').text('(' + (allUsers.length > 5000 ? 5000 : allUsers.length) + ')');
         $('#userDataTable').find('tbody tr').each(function () {
             $(this).prepend($('<td/>').html('<input onclick="chkUserChange(this)" type="checkbox" />'));
         });
@@ -130,10 +132,10 @@ function getUserForGroup(obj)
         $('#dataTableDiv').show();
         $('#LodingMSG').hide(); $('#overlayButtonDiv').hide();
 		
-		if(allUsers.length > 2000)
+		if(allUsers.length > 5000)
 		{
 			//$('#divThreshold').show();
-			statusbar = SP.UI.Status.addStatus("Threshold Exceeded", 'This DL has exceeded the maximum threshold limit of 2000 users. Kindly contact <a href="http://itsc" target="_blank">ITSC</a> for further assistance.');
+			statusbar = SP.UI.Status.addStatus("Threshold Exceeded", 'This DL has exceeded the maximum threshold limit of 5000 users. Kindly contact <a href="http://itsc" target="_blank">ITSC</a> for further assistance.');
 			SP.UI.Status.setStatusPriColor(statusbar, 'red');
 		} 
     });
@@ -172,6 +174,7 @@ function getUserForGroup_Old(obj) {
         url: address,
         method: "POST",
         async: true,
+		cache: false,
         data: obj,
         headers: {
             "accept": "application/json;odata=verbose"
@@ -550,6 +553,8 @@ JSHelper.DataOperations = function () {
         var call = jQuery.ajax({
             url: address,
             method: "GET",
+			cache: false,
+			cache: false,
             async: true,
             headers: {
 				"accept": "application/json;odata=verbose",
@@ -579,6 +584,7 @@ JSHelper.DataOperations = function () {
         var call = jQuery.ajax({
             url: address,
             method: "POST",
+			cache: false,
             async: true,
             data: obj,
             headers: {
@@ -595,6 +601,7 @@ JSHelper.DataOperations = function () {
             url: address,
             method: "POST",
             async: true,
+			cache: false,
             data: obj,
             headers: {
                 "accept": "application/json;odata=verbose"
